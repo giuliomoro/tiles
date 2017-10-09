@@ -7,6 +7,7 @@
 // Better voice stealing algorithm
 
 #include <Bela.h>
+#include <UdpServer.h>
 #include <Utilities.h>
 #include <cmath>
 #include <Scope.h>
@@ -145,7 +146,7 @@ int gRecord = 0;
 int gShouldStopLogging = 0;
 
 
-void receiveUdpMessages()	{
+void receiveUdpMessages(void*)	{
 	while(!gShouldStop){
 		int numBytes = netDataReceiver.udpServer.read(&netDataReceiver.messageBuffer, NET_DATA_BUFFER_SIZE_RECEIVE, false);
 		if(numBytes < 0 || netDataReceiver.messageBuffer == NULL) {
@@ -299,7 +300,7 @@ bool setup(BelaContext *context, void *userData)
 	if(netDataReceiver.boundToPort = netDataReceiver.udpServer.init(gUdpReceivePort))	{
 		printf("Successfully bound to port %d\n",gUdpReceivePort);
 		// Start auxiliary task for receiving UDP messages
-		receiveUdpMessagesTask = Bela_createAuxiliaryTask(*receiveUdpMessages, 75, "receive-udp-messages");
+		receiveUdpMessagesTask = Bela_createAuxiliaryTask(receiveUdpMessages, 75, "receive-udp-messages");
 		Bela_scheduleAuxiliaryTask(receiveUdpMessagesTask);
 	} else {
 		printf("Unable to bind to port %d. No communication to host.\n",gUdpReceivePort);
